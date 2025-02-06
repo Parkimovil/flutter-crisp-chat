@@ -70,4 +70,12 @@ class FlutterCrispChat {
       return null;
     }
   }
+
+  static Future<void> pushSessionEvent({required String eventType}) {
+    // Ensure non-empty event type
+    if (eventType.isEmpty) {
+      throw Exception("Event type cannot be empty!");
+    }
+    return FlutterCrispChatPlatform.instance.pushSessionEvent(eventType: eventType);
+  }
 }
