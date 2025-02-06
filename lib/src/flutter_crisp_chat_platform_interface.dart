@@ -3,6 +3,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'config.dart';
 import 'flutter_crisp_chat_method_channel.dart';
 
+/// An implementation of [FlutterCrispChatPlatform] that uses method channels.
 abstract class FlutterCrispChatPlatform extends PlatformInterface {
   /// Constructs a FlutterCrispChatPlatform.
   FlutterCrispChatPlatform() : super(token: _token);
@@ -24,33 +25,34 @@ abstract class FlutterCrispChatPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  /// [openCrispChat] is to call native platform and if no implementation
-  /// found through error.
+  /// [openCrispChat] calls native platform code with the provided [CrispConfig].
   Future<void> openCrispChat({required CrispConfig config}) {
-    throw UnimplementedError('platformVersion() has not been implemented.');
+    throw UnimplementedError('openCrispChat() has not been implemented.');
   }
 
-  /// [resetCrispChatSession] is to call native platform and if no implementation
-  /// found through error.
+  /// [resetCrispChatSession] calls native platform code to reset the Crisp chat session.
   Future<void> resetCrispChatSession() {
-    throw UnimplementedError('platformVersion() has not been implemented.');
+    throw UnimplementedError('resetCrispChatSession() has not been implemented.');
   }
 
-  /// [setSessionString] is to call native platform and if no implementation
-  /// found through error.
+  /// [setSessionString] calls native platform code to set a session string with the given key and value.
   void setSessionString({required String key, required String value}) {
-    throw UnimplementedError('platformVersion() has not been implemented.');
+    throw UnimplementedError('setSessionString() has not been implemented.');
   }
 
-  /// [setSessionInt] is to call native platform and if no implementation
-  /// found through error.
+  /// [setSessionInt] calls native platform code to set a session integer with the given key and value.
   void setSessionInt({required String key, required int value}) {
-    throw UnimplementedError('platformVersion() has not been implemented.');
+    throw UnimplementedError('setSessionInt() has not been implemented.');
   }
 
   /// [getSessionIdentifier] retrieves the current session identifier from the native platform.
   Future<String?> getSessionIdentifier() {
-    throw UnimplementedError(
-        'getSessionIdentifier() has not been implemented.');
+    throw UnimplementedError('getSessionIdentifier() has not been implemented.');
+  }
+
+  /// [pushSessionEvent] calls native platform code to push a session event.
+  /// [eventType] is required, and [eventData] is optional.
+  Future<void> pushSessionEvent({required String eventType}) {
+    throw UnimplementedError('pushSessionEvent() has not been implemented.');
   }
 }

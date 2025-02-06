@@ -34,6 +34,12 @@ class MockFlutterCrispChatPlatform
   Future<String?> getSessionIdentifier() {
     throw UnimplementedError();
   }
+  
+  @override
+  Future<void> pushSessionEvent({required String eventType}) {
+    // TODO: implement pushSessionEvent
+    throw UnimplementedError();
+  }
 }
 
 void main() {

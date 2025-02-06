@@ -57,4 +57,19 @@ class MethodChannelFlutterCrispChat extends FlutterCrispChatPlatform {
       return null;
     }
   }
+
+  /// [pushSessionEvent] is used to invoke the Method Channel and call native
+  @override
+  Future<void> pushSessionEvent({required String eventType}) async {
+    try {
+      await methodChannel.invokeMethod(
+        'pushSessionEvent',
+        <String, String>{
+          'eventType': eventType,
+        },
+      );
+    } on PlatformException catch (e) {
+      debugPrint("Failed to push session event: '${e.message}'.");
+    }
+  }
 }
