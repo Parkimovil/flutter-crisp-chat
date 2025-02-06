@@ -94,9 +94,32 @@ class FlutterCrispChatPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
             }
 
+            "pushSessionEvent" -> {
+                try {
+                    val args = call.arguments as? Map<String?, Any>
+                    if (args == null) {
+                        result.error("INVALID_ARGS", "Arguments are required", null)
+                        return
+                    }
+                    val eventType = args["eventType"] as? String ?: ""
+                    // Crear SessionEvent; ajustar la construcción según la implementación real
+                    val sessionEvent = SessionEvent(eventType, SessionEvent.Color.ORANGE)
+                    pushSessionEvent(sessionEvent)
+                    result.success("Session event pushed successfully")
+                } catch (e: Exception) {
+                    result.error("ERROR", "Failed to push session event: ${e.message}", null)
+                }
+            }
+
+
             else -> result.notImplemented()
         }
     }
+
+    private fun pushSessionEvent(sessionEvent: SessionEvent) {
+        Crisp.pushSessionEvent(sessionEvent)
+    }
+
 
     private fun setCrispData(config: CrispConfig) {
         config.tokenId?.let {
