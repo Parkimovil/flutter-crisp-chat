@@ -104,7 +104,7 @@ public class SwiftFlutterCrispChatPlugin: NSObject, FlutterPlugin, UIApplication
                 result(FlutterError(code: "INVALID_ARGUMENTS", message: "Expected eventType of type String.", details: nil))
                 return
             }
-            CrispSDK.session.pushEvent(eventType)
+            CrispSDK.session.pushSessionEvent(name: eventType, color: CrispSessionEventColors.blue)
             result(nil)
         default:
             // Handles unimplemented method calls
