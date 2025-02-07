@@ -105,9 +105,36 @@ public class FlutterCrispChatPlugin implements FlutterPlugin, MethodCallHandler,
             } else {
                 result.error("NO_SESSION", "No active session found", null);
             }
+        } else if (call.method.equals("pushSessionEvent")) {
+            pushSessionEvent(call, result);
         }
         else {
             result.notImplemented();
+        }
+    }
+
+     private void pushSessionEvent(@NonNull MethodCall call, @NonNull Result result) {
+        try {
+            Map<String, Object> args = (Map<String, Object>) call.arguments;
+            if (args == null) {
+                result.error("INVALID_ARGS", "Arguments are required", null);
+                return;
+            }
+
+            // eventType es obligatorio
+            String eventType = args.containsKey("eventType") ? args.get("eventType").toString() : "";
+            // Si deseas un eventData, puedes obtenerlo igual
+            // String eventData = args.containsKey("eventData") ? args.get("eventData").toString() : "";
+
+            // Construimos SessionEvent (modifica si Crisp SDK necesita algo distinto)
+            SessionEvent sessionEvent = new SessionEvent(eventType, SessionEvent.Color.ORANGE);
+
+            // Llamamos a Crisp para enviar el evento
+            Crisp.pushSessionEvent(sessionEvent);
+
+            result.success("Session event pushed successfully");
+        } catch (Exception e) {
+            result.error("ERROR", "Failed to push session event: " + e.getMessage(), null);
         }
     }
 
