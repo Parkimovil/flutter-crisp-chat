@@ -98,7 +98,7 @@ public class SwiftFlutterCrispChatPlugin: NSObject, FlutterPlugin, UIApplication
             } else {
                 result(FlutterError(code: "NO_SESSION", message: "No active session found", details: nil))
             }
-        case "pushSessionEvent"
+        case "pushSessionEvent":
             guard let args = call.arguments as? [String: Any],
                   let eventType = args["eventType"] as? String else {
                 result(FlutterError(code: "INVALID_ARGUMENTS", message: "Expected eventType of type String.", details: nil))
