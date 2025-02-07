@@ -7,12 +7,12 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.alaminkarno.flutter_crisp_chat.config.CrispConfig;
-
+// Añade estas importaciones
 import java.util.HashMap;
-
+import java.util.Map; 
 import im.crisp.client.external.ChatActivity;
 import im.crisp.client.external.Crisp;
+import im.crisp.client.external.data.SessionEvent;
 
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -21,9 +21,6 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-
-/// [FlutterCrispChatPlugin] using [FlutterPlugin], [MethodCallHandler] and [ActivityAware]
-/// to handling Method Channel Callback from Flutter and Open new Activity.
 
 /**
  * FlutterCrispChatPlugin
@@ -64,66 +61,88 @@ public class FlutterCrispChatPlugin implements FlutterPlugin, MethodCallHandler,
         this.activity = null;
     }
 
-    /// [onMethodCall] if for handling method call from flutter end.
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-        if (call.method.equals("openCrispChat")) {
-            HashMap<String, Object> args = (HashMap<String, Object>) call.arguments;
-            if (args != null) {
-                CrispConfig config = CrispConfig.fromJson(args);
-                if (config.tokenId != null) {
-                    Crisp.configure(context, config.websiteId, config.tokenId);
-                } else {
-                    Crisp.configure(context, config.websiteId);
-                }
-                setCrispData(context, config);
-                openActivity();
-            } else {
+        switch (call.method) {
+            case "openCrispChat":
+                openCrispChat(call, result);
+                break;
+            case "resetCrispChatSession":
+                Crisp.resetChatSession(context);
+                result.success(null);
+                break;
+            case "setSessionString":
+                setSessionString(call);
+                break;
+            case "setSessionInt":
+                setSessionInt(call);
+                break;
+            case "getSessionIdentifier":
+                getSessionIdentifier(result);
+                break;
+            case "pushSessionEvent":
+                pushSessionEvent(call, result);
+                break;
+            default:
                 result.notImplemented();
-            }
-        } else if (call.method.equals("resetCrispChatSession")) {
-            Crisp.resetChatSession(context);
-        } else if (call.method.equals("setSessionString")) {
-            HashMap<String, Object> args = (HashMap<String, Object>) call.arguments;
-            if (args != null) {
-                String key = (String) args.get("key");
-                String value = (String) args.get("value");
-                Crisp.setSessionString(key, value);
-            }
-        } else if (call.method.equals("setSessionInt")) {
-            HashMap<String, Object> args = (HashMap<String, Object>) call.arguments;
-            if (args != null) {
-                String key = (String) args.get("key");
-                int value = (int) args.get("value");
-                Crisp.setSessionInt(key, value);
-            }
-        } else if (call.method.equals("getSessionIdentifier")) {
-
-            String sessionId = Crisp.getSessionIdentifier(context);
-            if (sessionId != null) {
-                result.success(sessionId);
-            } else {
-                result.error("NO_SESSION", "No active session found", null);
-            }
-        } else if (call.method.equals("pushSessionEvent")) {
-            pushSessionEvent(call, result);
+                break;
         }
-        else {
+    }
+
+    private void openCrispChat(@NonNull MethodCall call, @NonNull Result result) {
+        HashMap<String, Object> args = (HashMap<String, Object>) call.arguments;
+        if (args != null) {
+            CrispConfig config = CrispConfig.fromJson(args);
+            if (config.tokenId != null) {
+                Crisp.configure(context, config.websiteId, config.tokenId);
+            } else {
+                Crisp.configure(context, config.websiteId);
+            }
+            setCrispData(context, config);
+            openActivity();
+            result.success(null);
+        } else {
             result.notImplemented();
         }
     }
 
-     private void pushSessionEvent(@NonNull MethodCall call, @NonNull Result result) {
+    private void setSessionString(@NonNull MethodCall call) {
+        HashMap<String, Object> args = (HashMap<String, Object>) call.arguments;
+        if (args != null) {
+            String key = (String) args.get("key");
+            String value = (String) args.get("value");
+            Crisp.setSessionString(key, value);
+        }
+    }
+
+    private void setSessionInt(@NonNull MethodCall call) {
+        HashMap<String, Object> args = (HashMap<String, Object>) call.arguments;
+        if (args != null) {
+            String key = (String) args.get("key");
+            int value = (int) args.get("value");
+            Crisp.setSessionInt(key, value);
+        }
+    }
+
+    private void getSessionIdentifier(@NonNull Result result) {
+        String sessionId = Crisp.getSessionIdentifier(context);
+        if (sessionId != null) {
+            result.success(sessionId);
+        } else {
+            result.error("NO_SESSION", "No active session found", null);
+        }
+    }
+
+    private void pushSessionEvent(@NonNull MethodCall call, @NonNull Result result) {
         try {
             Map<String, Object> args = (Map<String, Object>) call.arguments;
             if (args == null) {
                 result.error("INVALID_ARGS", "Arguments are required", null);
                 return;
             }
-
             // eventType es obligatorio
             String eventType = args.containsKey("eventType") ? args.get("eventType").toString() : "";
-            // Si deseas un eventData, puedes obtenerlo igual
+            // Si deseas un eventData, puedes obtenerlo aquí:
             // String eventData = args.containsKey("eventData") ? args.get("eventData").toString() : "";
 
             // Construimos SessionEvent (modifica si Crisp SDK necesita algo distinto)
@@ -150,19 +169,19 @@ public class FlutterCrispChatPlugin implements FlutterPlugin, MethodCallHandler,
                 Crisp.setUserNickname(config.user.nickName);
             }
             if (config.user.email != null) {
-                boolean result =  Crisp.setUserEmail(config.user.email);
+                boolean result = Crisp.setUserEmail(config.user.email);
                 if(!result){
                     Log.d("CRSIP_CHAT","Email not set");
                 }
             }
             if (config.user.avatar != null) {
-               boolean result = Crisp.setUserAvatar(config.user.avatar);
-               if(!result){
-                   Log.d("CRSIP_CHAT","Avatar not set");
-               }
+                boolean result = Crisp.setUserAvatar(config.user.avatar);
+                if(!result){
+                    Log.d("CRSIP_CHAT","Avatar not set");
+                }
             }
             if (config.user.phone != null) {
-                boolean result =  Crisp.setUserPhone(config.user.phone);
+                boolean result = Crisp.setUserPhone(config.user.phone);
                 if(!result){
                     Log.d("CRSIP_CHAT","Phone not set");
                 }
@@ -171,15 +190,14 @@ public class FlutterCrispChatPlugin implements FlutterPlugin, MethodCallHandler,
                 Crisp.setUserCompany(config.user.company.toCrispCompany());
             }
         }
-
     }
 
-    ///[openActivity] is opening ChatView Activity of CrispChat SDK.
     private void openActivity() {
         Intent intent = new Intent(context, ChatActivity.class);
         if (activity != null) {
             activity.startActivity(intent);
         } else {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         }
     }
@@ -189,5 +207,4 @@ public class FlutterCrispChatPlugin implements FlutterPlugin, MethodCallHandler,
         channel.setMethodCallHandler(null);
         context = null;
     }
-
 }
